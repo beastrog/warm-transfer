@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pydantic
+livekit-server-sdk
+openai
+groq
+python-dotenv
