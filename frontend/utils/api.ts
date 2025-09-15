@@ -21,3 +21,8 @@ export async function getSummary(roomName: string) {
   const { data } = await axios.get(`${API_BASE}/room/${roomName}/summary`);
   return data as { summary: string; transcript: string };
 }
+
+export async function twilioTransfer(payload: { from_room: string; initiator_identity: string; phone_number: string; }) {
+  const { data } = await axios.post(`${API_BASE}/twilio-transfer`, payload);
+  return data as { call_sid: string; to_number: string; status: string };
+}
