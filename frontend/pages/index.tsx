@@ -286,17 +286,42 @@ export default function CallerPage() {
                     </div>
                   </div>
 
-                  <div className="mt-6 flex justify-center space-x-4">
-                    <Button
-                      variant={isMuted ? 'outline' : 'secondary'}
-                      size="lg"
-                      onClick={toggleMute}
-                      className="rounded-full p-3"
-                    >
-                      {isMuted ? (
-                        <PhoneOff className="h-5 w-5 text-red-600" />
-                      ) : (
-                        <Phone className="h-5 w-5 text-green-600" />
+                  <div className="mt-8 flex flex-col items-center space-y-4 w-full">
+                    <div className="flex justify-center space-x-6 w-full max-w-md">
+                      <Button
+                        variant={isMuted ? 'outline' : 'secondary'}
+                        size="lg"
+                        onClick={toggleMute}
+                        className="rounded-full h-14 w-14 p-0 flex items-center justify-center"
+                        aria-label={isMuted ? 'Unmute' : 'Mute'}
+                      >
+                        {isMuted ? (
+                          <PhoneOff className="h-6 w-6 text-red-600" />
+                        ) : (
+                          <Phone className="h-6 w-6 text-green-600" />
+                        )}
+                      </Button>
+                      
+                      <Button
+                        variant="destructive"
+                        size="lg"
+                        onClick={handleLeave}
+                        className="rounded-full h-14 w-14 p-0 flex items-center justify-center"
+                        aria-label="End call"
+                      >
+                        <PhoneOff className="h-6 w-6" />
+                      </Button>
+                      
+                      {status === 'connected' && (
+                        <Button
+                          variant="default"
+                          size="lg"
+                          onClick={handleTransfer}
+                          className="rounded-full h-14 w-14 p-0 flex items-center justify-center bg-blue-600 hover:bg-blue-700"
+                          aria-label="Transfer call"
+                        >
+                          <Phone className="h-6 w-6 text-white" />
+                        </Button>
                       )}
                       <span className="ml-2">{isMuted ? 'Unmute' : 'Mute'}</span>
                     </Button>

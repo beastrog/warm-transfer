@@ -34,7 +34,7 @@ from models import (
 
 # Import services and database operations
 import transcripts
-from services.livekit_client import mint_access_token as create_token, validate_room_membership
+from services.livekit_client import mint_access_token, validate_room_membership
 from services.llm_client import generate_summary
 from db_operations import (
     set_call_status, get_call_status,

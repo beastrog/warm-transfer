@@ -299,6 +299,19 @@ export default function AgentA() {
     };
   }, [room]);
 
+  // Check for caller in the room
+  useEffect(() => {
+    if (room && status === 'connected') {
+      const participants = Array.from(room.participants.values());
+      const hasCallerParticipant = participants.some(p => p.identity !== identity);
+      if (hasCallerParticipant) {
+        setCallerName(participants.find(p => p.identity !== identity)?.identity || '');
+      } else {
+        setCallerName('');
+      }
+    }
+  }, [room, status, identity]);
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
@@ -552,18 +565,3 @@ export default function AgentA() {
     </div>
   );
 }
-
-  useEffect(() => {
-    // Check if there's a caller in the room
-    if (room && status === 'connected') {
-      const participants = Array.from(room.participants.values());
-      const hasCallerParticipant = participants.some(p => p.identity !== identity);
-      
-      if (hasCallerParticipant) {
-        setCallerName(participants.find(p => p.identity !== identity)?.identity || '');
-      } else {
-        // No caller found, show waiting status
-        setCallerName('');
-      }
-    }
-  }, [room, status, identity]);

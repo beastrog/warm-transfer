@@ -1,9 +1,10 @@
 # Core dependencies
-fastapi==0.95.0
-uvicorn==0.21.1
-pydantic==1.10.7
+fastapi>=0.95.0,<0.100.0
+uvicorn>=0.21.1,<0.23.0
+pydantic>=1.10.7,<2.0.0
 python-dotenv==1.0.0
 python-multipart==0.0.6
+starlette
 
 # Authentication & Security
 PyJWT==2.6.0
@@ -23,7 +24,7 @@ numpy==1.24.3
 twilio==7.16.1
 
 # LiveKit Integration
-livekit-server-sdk>=0.9.0,<1.0.0  # Server SDK for LiveKit
+livekit-api
 grpcio>=1.54.0  # Required for gRPC
 protobuf>=4.23.0  # Required for gRPC
 
@@ -31,8 +32,6 @@ protobuf>=4.23.0  # Required for gRPC
 aiohttp==3.8.4
 websockets==11.0.3
 
-# Local modules
-transcripts/  # Local module
 
 # Development Dependencies (optional)
 pytest==7.4.2
@@ -56,7 +55,7 @@ anyio>=3.7.1
 asgiref>=3.7.2
 
 # CORS
-starlette>=0.31.0
+starlette
 
 # Logging
 structlog>=23.1.0

@@ -1,41 +1,57 @@
-# Warm Transfer System
+# Warm Transfer
 
-A robust warm transfer solution enabling seamless call handoffs between agents and external phone numbers. This system provides real-time audio communication, automated conversation summarization, and flexible transfer capabilities.
+Seamless call handoff between agents and external phone numbers, with real-time audio, AI-powered summaries, and a modern web UI.
 
-## 🌟 Key Features
+## Features
+- Warm transfer between agents or to phone (Twilio)
+- Real-time audio (LiveKit), transcript, and AI summary
+- Clean, responsive dashboard for caller and agents
 
-### Core Functionality
-- **Multi-Agent Warm Transfer**: Seamlessly transfer calls between agents with conversation context
-- **Phone Integration**: Transfer calls to external phone numbers via Twilio
-- **Real-time Transcription**: Automatic transcription of ongoing conversations
-- **AI-Powered Summaries**: Automated conversation summaries for smooth handoffs
-- **Modern Web Interface**: Responsive UI with real-time updates
+## Tech Stack
+- **Backend:** FastAPI, LiveKit, SQLite, Groq/OpenAI, Twilio
+- **Frontend:** Next.js (TypeScript), TailwindCSS, LiveKit React SDK
 
-### Technical Highlights
-- **WebRTC Audio**: Powered by LiveKit for high-quality, low-latency audio
-- **AI Processing**: Utilizes LLMs (Groq/OpenAI) for intelligent summarization
-- **RESTful API**: Well-documented endpoints for extensibility
-- **Responsive Design**: Works on desktop and mobile devices
-
-## 🛠 Tech Stack
+## Quick Start
+### Prerequisites
+- Python 3.9+
+- Node.js 18+
+- LiveKit server (cloud/self-hosted)
+- (Optional) Twilio account
 
 ### Backend
-- **Framework**: FastAPI (Python 3.9+)
-- **Realtime**: LiveKit Server SDK
-- **AI/ML**: Groq (primary) and OpenAI (fallback) for LLM processing
-- **Database**: SQLite for persistent storage (transcripts, call statuses)
-- **Authentication**: JWT-based token system
+```bash
+cd warm-transfer/backend
+python -m venv .venv
+.venv\Scripts\activate  # On Windows
+pip install -r requirements.txt
+cp .env.example .env  # Edit with your keys
+uvicorn main:app --reload
+```
 
 ### Frontend
-- **Framework**: Next.js 13+ with TypeScript
-- **UI**: TailwindCSS + HeadlessUI
-- **State Management**: React Query
-- **WebRTC**: LiveKit React SDK
-- **Real-time Updates**: Server-Sent Events (SSE)
-
-## 📁 Project Structure
-
+```bash
+cd ../frontend
+npm install
+cp .env.local.example .env.local  # Edit with your backend/livekit URLs
+npm run dev
 ```
+
+## Demo
+- Caller: `/` — Join call, see transcript
+- Agent A: `/agent-a` — Transfer, see summary, phone transfer
+- Agent B: `/agent-b` — Join transferred call, see summary
+
+## Environment
+- Configure `.env` in backend and `.env.local` in frontend with your LiveKit, Twilio, and AI keys.
+
+## License
+MIT
+
+---
+<div align="center">
+  Made with ❤️ for seamless call transfers
+</div>
+
 /warm-transfer
   /backend
     ├── main.py              # FastAPI application and routes
