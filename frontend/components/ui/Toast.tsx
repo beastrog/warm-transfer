@@ -63,7 +63,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   const toast = useCallback(
     (props: Omit<Toast, 'id'>) => {
-      const id = Date.now();
+      // Use a combination of Date.now() and Math.random() to ensure uniqueness
+      const id = Date.now() + Math.floor(Math.random() * 1000000);
       const duration = props.duration ?? 5000;
 
       setToasts((currentToasts) => [...currentToasts, { ...props, id }]);

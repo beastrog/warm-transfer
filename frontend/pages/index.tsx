@@ -8,12 +8,12 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '../compone
 import { Button } from '../components/ui/Button';
 import { StatusBadge } from '../components/ui/Badge';
 import { useToast } from '../components/ui/Toast';
-import VideoGrid from '../components/VideoGrid';
+
 
 type CallStatus = 'idle' | 'connecting' | 'connected' | 'transferring' | 'error';
 
 export default function CallerPage() {
-  const [roomName, setRoomName] = useState<string>('');
+  const [roomName, setRoomName] = useState<string>('shared-room');
   const [identity] = useState<string>('caller');
   const [status, setStatus] = useState<CallStatus>('idle');
   const [room, setRoom] = useState<Room | null>(null);
@@ -25,9 +25,13 @@ export default function CallerPage() {
     try {
       setStatus('connecting');
       
-      // Create or join a room
-      const res = await createRoom({ identity, role: 'caller', room_name: 'shared-room' });
-      setRoomName(res.room_name);
+      // Join the shared room
+      const res = await createRoom({ 
+        identity: 'caller', 
+        role: 'caller', 
+        room_name: 'shared-room' // Hardcoded to ensure consistency
+      });
+      // Room name is already set to 'shared-room'
       
       // Initialize room
       const newRoom = new Room({
@@ -242,12 +246,12 @@ export default function CallerPage() {
                   >
                     {status === 'connecting' ? (
                       <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <Loader2 className="mr-3 h-5 w-5 animate-spin" />
                         Connecting...
                       </>
                     ) : (
                       <>
-                        <Phone className="mr-2 h-4 w-4" />
+                        <Phone className="mr-3 h-5 w-5" />
                         Start Call
                       </>
                     )}
@@ -281,49 +285,34 @@ export default function CallerPage() {
                   </div>
 
                   <div className="mt-6">
-                    <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                      <VideoGrid room={room} />
+                    <div className="p-6 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <div className="flex flex-col items-center space-y-3">
+                        <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" />
+                          </svg>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-lg font-medium text-gray-900">Audio Call</p>
+                          <p className="text-sm text-gray-500">Connected</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="mt-8 flex flex-col items-center space-y-4 w-full">
-                    <div className="flex justify-center space-x-6 w-full max-w-md">
-                      <Button
-                        variant={isMuted ? 'outline' : 'secondary'}
-                        size="lg"
-                        onClick={toggleMute}
-                        className="rounded-full h-14 w-14 p-0 flex items-center justify-center"
-                        aria-label={isMuted ? 'Unmute' : 'Mute'}
-                      >
-                        {isMuted ? (
-                          <PhoneOff className="h-6 w-6 text-red-600" />
-                        ) : (
-                          <Phone className="h-6 w-6 text-green-600" />
-                        )}
-                      </Button>
-                      
-                      <Button
-                        variant="destructive"
-                        size="lg"
-                        onClick={handleLeave}
-                        className="rounded-full h-14 w-14 p-0 flex items-center justify-center"
-                        aria-label="End call"
-                      >
-                        <PhoneOff className="h-6 w-6" />
-                      </Button>
-                      
-                      {status === 'connected' && (
-                        <Button
-                          variant="default"
-                          size="lg"
-                          onClick={handleTransfer}
-                          className="rounded-full h-14 w-14 p-0 flex items-center justify-center bg-blue-600 hover:bg-blue-700"
-                          aria-label="Transfer call"
-                        >
-                          <Phone className="h-6 w-6 text-white" />
-                        </Button>
+                  <div className="mt-6 flex justify-center space-x-4">
+                    <Button
+                      variant={isMuted ? 'outline' : 'secondary'}
+                      size="lg"
+                      onClick={toggleMute}
+                      className="!h-12 !px-6"
+                    >
+                      {isMuted ? (
+                        <PhoneOff className="h-5 w-5 text-red-600 mr-3" />
+                      ) : (
+                        <Phone className="h-5 w-5 text-green-600 mr-3" />
                       )}
-                      <span className="ml-2">{isMuted ? 'Unmute' : 'Mute'}</span>
+                      <span>{isMuted ? 'Unmute' : 'Mute'}</span>
                     </Button>
                   </div>
 

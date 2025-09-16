@@ -1,53 +1,201 @@
-# Warm Transfer
+# Warm Transfer System
 
-Seamless call handoff between agents and external phone numbers, with real-time audio, AI-powered summaries, and a modern web UI.
+A comprehensive solution for seamless call handoff between agents and external phone numbers, featuring real-time audio, AI-powered summaries, and an intuitive web interface.
 
-## Features
-- Warm transfer between agents or to phone (Twilio)
-- Real-time audio (LiveKit), transcript, and AI summary
-- Clean, responsive dashboard for caller and agents
+## 🚀 Features
 
-## Tech Stack
-- **Backend:** FastAPI, LiveKit, SQLite, Groq/OpenAI, Twilio
-- **Frontend:** Next.js (TypeScript), TailwindCSS, LiveKit React SDK
+- **Warm Transfer**: Seamless call handoff between agents
+- **Phone Integration**: Transfer calls to external numbers via Twilio
+- **AI-Powered Summaries**: Automatic call summarization using Groq/OpenAI
+- **Real-time Audio**: Powered by LiveKit for high-quality voice communication
+- **Modern Web UI**: Responsive design built with Next.js and TailwindCSS
+- **Call Recording**: Automatic transcript generation and storage
 
-## Quick Start
-### Prerequisites
-- Python 3.9+
-- Node.js 18+
-- LiveKit server (cloud/self-hosted)
-- (Optional) Twilio account
+## 🛠️ Tech Stack
 
 ### Backend
+- **Framework**: FastAPI
+- **Real-time Communication**: LiveKit
+- **Database**: SQLite
+- **AI/ML**: Groq/OpenAI for summarization
+- **Telephony**: Twilio for phone integration
+
+### Frontend
+- **Framework**: Next.js with TypeScript
+- **UI**: TailwindCSS
+- **Real-time**: LiveKit React SDK
+- **State Management**: React Hooks
+
+## 📦 Prerequisites
+
+- Python 3.9+
+- Node.js 18+
+- LiveKit server (cloud or self-hosted)
+- (Optional) Twilio account for phone transfers
+
+## 🚀 Quick Start
+
+### 1. Clone the Repository
+
 ```bash
-cd warm-transfer/backend
+git clone <repository-url>
+cd warm-transfer
+```
+
+### 2. Set Up Backend
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Create and activate virtual environment
 python -m venv .venv
 .venv\Scripts\activate  # On Windows
+source .venv/bin/activate  # On macOS/Linux
+
+# Install dependencies
 pip install -r requirements.txt
-cp .env.example .env  # Edit with your keys
+
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your configuration
+
+# Run the backend server
 uvicorn main:app --reload
 ```
 
-### Frontend
+### 3. Set Up Frontend
+
 ```bash
+# Navigate to frontend directory
 cd ../frontend
+
+# Install dependencies
 npm install
-cp .env.local.example .env.local  # Edit with your backend/livekit URLs
+
+# Set up environment variables
+cp .env.local.example .env.local
+# Edit .env.local with your configuration
+
+# Start the development server
 npm run dev
 ```
 
-## Demo
-- Caller: `/` — Join call, see transcript
-- Agent A: `/agent-a` — Transfer, see summary, phone transfer
-- Agent B: `/agent-b` — Join transferred call, see summary
+### 4. Access the Application
 
-## Environment
-- Configure `.env` in backend and `.env.local` in frontend with your LiveKit, Twilio, and AI keys.
+- **Caller Interface**: http://localhost:3000
+- **Agent A Dashboard**: http://localhost:3000/agent-a
+- **Agent B Dashboard**: http://localhost:3000/agent-b
 
-## License
-MIT
+## 🔧 Environment Configuration
+
+### Backend (`.env`)
+
+```env
+# LiveKit Configuration
+LIVEKIT_API_KEY=your_livekit_api_key
+LIVEKIT_API_SECRET=your_livekit_secret
+LIVEKIT_WS_URL=wss://your-livekit-instance.livekit.cloud
+
+# Application Settings
+DEBUG=true  # Set to false in production
+ENVIRONMENT=development
+
+# Twilio Configuration (optional)
+TWILIO_ACCOUNT_SID=your_twilio_account_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_PHONE_NUMBER=+1234567890
+
+# AI Configuration (optional)
+GROQ_API_KEY=your_groq_api_key
+OPENAI_API_KEY=your_openai_api_key
+
+# Caller Configuration
+CALLER_IDENTITY=caller
+```
+
+### Frontend (`.env.local`)
+
+```env
+# API Configuration
+NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+NEXT_PUBLIC_LIVEKIT_URL=wss://your-livekit-instance.livekit.cloud
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_ANALYTICS=false
+```
+
+## 📞 Using the System
+
+### 1. Starting a Call
+1. Open the Caller Interface
+2. Enter your name and click "Join Call"
+3. You will be connected to the call with Agent A
+
+### 2. Initiating a Transfer (Agent A)
+1. In the Agent A dashboard, you'll see the caller's information
+2. Click on "Transfer to Agent" or "Transfer to Phone"
+3. For agent transfer, Agent B will receive a notification to join
+4. For phone transfer, enter the phone number and click "Transfer"
+5. The system will generate a summary and connect the call
+
+### 3. Accepting a Transfer (Agent B)
+1. Open the Agent B dashboard
+2. You'll see an incoming transfer request with the call summary
+3. Click "Accept Transfer" to join the call
+4. You'll be connected to both the caller and Agent A
+
+## 🧪 Testing
+
+### Running Tests
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Run tests
+pytest tests/
+```
+
+## 🚀 Deployment
+
+### Backend
+
+1. **Production Server**:
+   ```bash
+   uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+   ```
+
+2. **Using Gunicorn** (recommended for production):
+   ```bash
+   gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b :8000 main:app
+   ```
+
+### Frontend
+
+1. **Build for Production**:
+   ```bash
+   npm run build
+   ```
+
+2. **Start Production Server**:
+   ```bash
+   npm start
+   ```
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- LiveKit for real-time communication
+- Twilio for telephony services
+- Groq/OpenAI for AI-powered summarization
+- The open-source community for invaluable tools and libraries
 
 ---
+
 <div align="center">
   Made with ❤️ for seamless call transfers
 </div>
