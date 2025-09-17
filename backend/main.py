@@ -48,16 +48,35 @@ import os
 # Import LLM client to check its status
 from services.llm_client import GROQ_AVAILABLE, GROQ_API_KEY
 
-# Configure logging
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+# Configure logging with debug level
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('app.log')
+    ]
+)
 
-# Add console handler if not already configured
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+# Get logger instance
+logger = logging.getLogger(__name__)
+
+# Configure specific loggers
+loggers = {
+    'twilio': logging.DEBUG,
+    'livekit': logging.DEBUG,
+    'aiohttp': logging.DEBUG,
+    'asyncio': logging.DEBUG,
+    'websockets': logging.INFO,  # Less verbose
+    'urllib3': logging.INFO,     # Less verbose
+    'PIL': logging.INFO,         # Less verbose
+    'matplotlib': logging.INFO   # Less verbose
+}
+
+for log_name, level in loggers.items():
+    logging.getLogger(log_name).setLevel(level)
+
+logger.debug("Debug logging enabled")
 
 # Initialize FastAPI app
 app = FastAPI(title="Warm Transfer MVP")
@@ -123,7 +142,7 @@ from models import (
 
 # Import services and database operations
 import transcripts
-from services.livekit_client import mint_access_token, validate_room_membership
+from services.livekit_client import mint_access_token, validate_room_membership, disconnect_participant
 from services.llm_client import generate_summary
 from db_operations import (
     set_call_status, get_call_status,
@@ -571,8 +590,9 @@ async def twilio_transfer(req: TwilioTransferRequest, background_tasks: Backgrou
     This endpoint will:
     1. Validate the request and Twilio configuration
     2. Generate a summary of the current conversation
-    3. Initiate a call to the target phone number
-    4. Provide the call SID and status for tracking
+    3. Initiate a call to the target phone number and connect to the existing room
+    4. Disconnect Agent A after the summary is played
+    5. Keep the caller and Twilio call recipient connected
     
     Returns:
         TwilioTransferResponse with call details and status
@@ -613,15 +633,27 @@ async def twilio_transfer(req: TwilioTransferRequest, background_tasks: Backgrou
                     if existing_transcript else "No transcript available"
                 summary_text = f"LLM unavailable — Notes: {first_120_chars} — please verify details."
             
-            # Create TwiML with the summary
+            # Generate a unique identity for the Twilio participant
+            twilio_identity = f"twilio-{str(uuid.uuid4())[:8]}"
+            
+            # Generate a token for the Twilio participant to join the existing room
+            twilio_token = mint_access_token(
+                room_name=req.from_room,
+                identity=twilio_identity,
+                role="agent"
+            )
+            
+            # Create TwiML that will connect the call to the existing LiveKit room
             twiml = f"""
             <Response>
                 <Say voice="Polly.Joanna" language="en-US">
                     Hello. You are being connected for a warm transfer. 
                     Here's a summary of the conversation so far: {summary_text}
-                    Please wait while we connect you.
+                    Please wait while we connect you to the call.
                 </Say>
-                <Pause length="1"/>
+                <Connect>
+                    <Room participantIdentity="{twilio_identity}">{req.from_room}</Room>
+                </Connect>
             </Response>
             """.strip()
             
@@ -669,11 +701,14 @@ async def twilio_transfer(req: TwilioTransferRequest, background_tasks: Backgrou
                         phone_number=req.phone_number
                     )
                     
-                    # Start background task to monitor call status
+                    # Start background task to monitor call status and handle agent transfer
                     background_tasks.add_task(
-                        check_call_status_async,
+                        handle_agent_transfer,
                         call_sid=call.sid,
-                        room_name=req.from_room
+                        room_name=req.from_room,
+                        agent_identity=req.caller_identity,
+                        twilio_identity=twilio_identity,
+                        summary=summary_text
                     )
                     
                     return TwilioTransferResponse(
@@ -741,20 +776,72 @@ async def twilio_transfer(req: TwilioTransferRequest, background_tasks: Backgrou
             status_code=500,
             detail={
                 "error": "internal_server_error",
-                "message": "An unexpected error occurred"
+                "message": f"An unexpected error occurred: {str(e)}"
             }
         )
 
 
-async def check_call_status_async(call_sid: str, room_name: str, max_attempts: int = 12):
+async def handle_agent_transfer(call_sid: str, room_name: str, agent_identity: str, twilio_identity: str, summary: str, max_attempts: int = 12):
     """
-    Background task to periodically check the status of a Twilio call.
-    
+    Background task to handle the agent transfer process.
+
     Args:
         call_sid: The Twilio Call SID to check
-        room_name: The room associated with the call
+        room_name: The room where the transfer is happening
+        agent_identity: The identity of Agent A who initiated the transfer
+        twilio_identity: The identity of the Twilio call participant
+        summary: The conversation summary that was shared
         max_attempts: Maximum number of status checks to perform
     """
+    logger.info(f"Starting agent transfer process for call {call_sid} in room {room_name}")
+
+    # Wait a moment for the Twilio call to be established
+    await asyncio.sleep(5)
+
+    # Disconnect Agent A
+    try:
+        logger.info(f"Attempting to disconnect agent {agent_identity} from room {room_name}")
+        success = await disconnect_participant(room_name, agent_identity)
+        if success:
+            logger.info(f"Successfully disconnected agent {agent_identity} from room {room_name}")
+        else:
+            logger.warning(f"Failed to disconnect agent {agent_identity} from room {room_name}")
+            # Continue even if disconnection fails, as the transfer can still proceed
+    except Exception as e:
+        logger.error(f"Error disconnecting agent {agent_identity}: {str(e)}")
+        # Continue with the transfer even if disconnection fails
+
+    # Monitor the Twilio call status
+    # Monitor the call status
+    attempt = 0
+    while attempt < max_attempts:
+        try:
+            # Get the latest call status from Twilio
+            client = get_twilio_client()
+            call = client.calls(call_sid).fetch()
+            
+            # Update our database with the latest status
+            from services.database import set_call_status
+            set_call_status(
+                room_name=room_name,
+                twilio_call_sid=call_sid,
+                status=call.status,
+                phone_number=''  # We don't have the phone number in this context
+            )
+            
+            # If call is completed/failed, we can stop checking
+            if call.status in ['completed', 'failed', 'busy', 'no-answer', 'canceled']:
+                logger.info(f"Call {call_sid} ended with status: {call.status}")
+                return
+                
+        except Exception as e:
+            logger.warning(f"Error checking call status (attempt {attempt}/{max_attempts}): {e}")
+            
+        # Wait before next check (with increasing delay)
+        await asyncio.sleep(min(5 * (attempt + 1), 30))  # Max 30s between checks
+        attempt += 1
+    
+    logger.warning(f"Reached max status check attempts for call {call_sid}")
     if not call_sid or not room_name:
         logger.warning("Missing call_sid or room_name for status check")
         return

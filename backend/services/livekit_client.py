@@ -1,9 +1,11 @@
 import os
 import time
 import logging
+import asyncio
 from typing import Optional, Dict, Any, List
 from dotenv import load_dotenv
 import jwt
+import aiohttp
 import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
@@ -147,3 +149,67 @@ def mint_admin_token() -> str:
     if isinstance(token, bytes):
         token = token.decode("utf-8")
     return token
+
+
+async def disconnect_participant(room_name: str, identity: str) -> bool:
+    """
+    Disconnect a participant from a LiveKit room.
+    
+    Args:
+        room_name: Name of the room
+        identity: Identity of the participant to disconnect
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    if not all([LIVEKIT_API_KEY, LIVEKIT_API_SECRET, LIVEKIT_URL]):
+        logger.error("LiveKit API credentials not configured")
+        return False
+    
+    try:
+        # Get admin token
+        admin_token = mint_admin_token()
+        
+        # Get the server URL (convert WebSocket URL to HTTP)
+        server_url = LIVEKIT_URL.replace("wss://", "https://").replace("ws://", "http://")
+        if server_url.endswith("/"):
+            server_url = server_url[:-1]
+            
+        api_url = f"{server_url}/twirp/livekit.RoomService/RemoveParticipant"
+        
+        # Prepare the request payload
+        payload = {
+            "room": room_name,
+            "identity": identity
+        }
+        
+        # Make the API request
+        headers = {
+            "Authorization": f"Bearer {admin_token}",
+            "Content-Type": "application/json"
+        }
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                api_url,
+                json=payload,
+                headers=headers,
+                timeout=aiohttp.ClientTimeout(total=DEFAULT_TIMEOUT)
+            ) as response:
+                if response.status == 200:
+                    logger.info(f"Successfully disconnected participant {identity} from room {room_name}")
+                    return True
+                else:
+                    response_text = await response.text()
+                    logger.error(
+                        f"Failed to disconnect participant {identity} from room {room_name}. "
+                        f"Status: {response.status}, Response: {response_text}"
+                    )
+                    return False
+                    
+    except asyncio.TimeoutError:
+        logger.error(f"Timeout while trying to disconnect participant {identity} from room {room_name}")
+        return False
+    except Exception as e:
+        logger.error(f"Error disconnecting participant {identity} from room {room_name}: {str(e)}")
+        return False

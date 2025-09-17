@@ -1,0 +1,54 @@
+2025-09-17 20:40:25,647 - main - DEBUG - Debug logging enabled
+2025-09-17 20:40:25,862 - db_operations - INFO - Database tables initialized
+2025-09-17 20:40:25,955 - main - INFO - Started background cleanup task
+2025-09-17 20:50:49,394 - main - INFO - Creating room: shared-room for identity: caller
+2025-09-17 20:50:49,396 - services.livekit_client - DEBUG - Generated token for caller in room shared-room
+2025-09-17 20:50:55,856 - main - INFO - Creating room: shared-room for identity: agent-a
+2025-09-17 20:50:55,856 - services.livekit_client - DEBUG - Generated token for agent-a in room shared-room
+2025-09-17 20:51:17,162 - main - INFO - Received transfer request: from_room='shared-room' to_room=None initiator_identity='agent-a' target_identity='agent-b' transcript='meow does a cat in a room'
+2025-09-17 20:51:17,163 - main - INFO - Acquired transfer lock for room: shared-room
+2025-09-17 20:51:17,164 - main - INFO - Initiating transfer in room: shared-room
+2025-09-17 20:51:17,164 - main - INFO - Created room shared-room with state: {'status': 'active', 'created_at': '2025-09-17T15:21:17.164750', 'participants': ['agent-a', 'agent-b'], 'transfer_initiated_at': '2025-09-17T15:21:17.164750', 'initiator': 'agent-a', 'target': 'agent-b'}
+2025-09-17 20:51:17,165 - main - DEBUG - Updating transcript for room shared-room
+2025-09-17 20:51:17,165 - transcripts.manager - DEBUG - Added transcript for room shared-room
+2025-09-17 20:51:17,166 - main - DEBUG - Retrieving existing transcripts for room shared-room
+2025-09-17 20:51:17,166 - main - INFO - Generating call summary...
+2025-09-17 20:51:17,166 - services.llm_client - INFO - Starting summary generation...
+2025-09-17 20:51:17,169 - services.llm_client - INFO - Starting summary generation
+2025-09-17 20:51:17,170 - services.llm_client - INFO - Initializing Groq client...
+2025-09-17 20:51:19,940 - services.llm_client - INFO - Sending request to Groq API...
+2025-09-17 20:51:19,944 - groq._base_client - DEBUG - Request options: {'method': 'post', 'url': '/openai/v1/chat/completions', 'files': None, 'json_data': {'messages': [{'role': 'system', 'content': 'You are an assistant creating a concise handoff summary between two human agents. Focus on key points, next steps, and any important context.'}, {'role': 'user', 'content': '\n        Please provide a concise handoff summary of the following conversation between a caller and an agent.\n        Focus on key points, issues, and next steps. Keep it brief but informative.\n        \n        Conversation:\n        meow does a cat in a room\n        \n        Summary:\n        '}], 'model': 'llama-3.1-8b-instant', 'max_tokens': 300, 'stream': False, 'temperature': 0.2, 'top_p': 1.0}}
+2025-09-17 20:51:19,981 - httpcore.connection - DEBUG - connect_tcp.started host='api.groq.com' port=443 local_address=None timeout=30 socket_options=None
+2025-09-17 20:51:22,222 - httpcore.connection - DEBUG - connect_tcp.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001D9B26F59D0>
+2025-09-17 20:51:22,223 - httpcore.connection - DEBUG - start_tls.started ssl_context=<ssl.SSLContext object at 0x000001D9B2675A30> server_hostname='api.groq.com' timeout=30
+2025-09-17 20:51:23,942 - httpcore.connection - DEBUG - start_tls.complete return_value=<httpcore._backends.sync.SyncStream object at 0x000001D9B2623A10>
+2025-09-17 20:51:23,942 - httpcore.http11 - DEBUG - send_request_headers.started request=<Request [b'POST']>
+2025-09-17 20:51:23,945 - httpcore.http11 - DEBUG - send_request_headers.complete
+2025-09-17 20:51:23,945 - httpcore.http11 - DEBUG - send_request_body.started request=<Request [b'POST']>
+2025-09-17 20:51:23,947 - httpcore.http11 - DEBUG - send_request_body.complete
+2025-09-17 20:51:23,947 - httpcore.http11 - DEBUG - receive_response_headers.started request=<Request [b'POST']>
+2025-09-17 20:51:26,228 - httpcore.http11 - DEBUG - receive_response_headers.complete return_value=(b'HTTP/1.1', 200, b'OK', [(b'Date', b'Wed, 17 Sep 2025 15:21:26 GMT'), (b'Content-Type', b'application/json'), (b'Transfer-Encoding', b'chunked'), (b'Connection', b'keep-alive'), (b'Content-Encoding', b'gzip'), (b'Cache-Control', b'private, max-age=0, no-store, no-cache, must-revalidate'), (b'vary', b'Origin'), (b'x-groq-region', b'bom'), (b'x-ratelimit-limit-requests', b'14400'), (b'x-ratelimit-limit-tokens', b'6000'), (b'x-ratelimit-remaining-requests', b'14399'), (b'x-ratelimit-remaining-tokens', b'5881'), (b'x-ratelimit-reset-requests', b'6s'), (b'x-ratelimit-reset-tokens', b'1.19s'), (b'x-request-id', b'req_01k5c48a1xed49vphv00atjzxy'), (b'via', b'1.1 google'), (b'cf-cache-status', b'DYNAMIC'), (b'Set-Cookie', b'__cf_bm=5cJ1TJsjVxzA30s7nK1eWjiPu7ucETIJHz3dkPvIGAQ-1758122486-1.0.1.1-2kiNh.W0yLlI8FWM.qc2H7W2E42.Wqbpn3S3S25qfl7IB_oADlYoppfVZ97VjMHzlN9QQWoxCrxclpxUKmE7GhTjaIcL1hXw30Did7K7fZ0; path=/; expires=Wed, 17-Sep-25 15:51:26 GMT; domain=.groq.com; HttpOnly; Secure; SameSite=None'), (b'Server', b'cloudflare'), (b'CF-RAY', b'980997dff91c3aef-BOM'), (b'alt-svc', b'h3=":443"; ma=86400')])
+2025-09-17 20:51:26,232 - httpx - INFO - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-17 20:51:26,232 - httpcore.http11 - DEBUG - receive_response_body.started request=<Request [b'POST']>
+2025-09-17 20:51:26,234 - httpcore.http11 - DEBUG - receive_response_body.complete
+2025-09-17 20:51:26,235 - httpcore.http11 - DEBUG - response_closed.started
+2025-09-17 20:51:26,236 - httpcore.http11 - DEBUG - response_closed.complete
+2025-09-17 20:51:26,237 - groq._base_client - DEBUG - HTTP Request: POST https://api.groq.com/openai/v1/chat/completions "200 OK"
+2025-09-17 20:51:26,238 - services.llm_client - INFO - Successfully generated summary in 9.07s
+2025-09-17 20:51:26,240 - main - DEBUG - Generated summary: **Handoff Summary**
+
+**Caller:** 
+- Caller inquired about a cat in a room, but the context was uncle...
+2025-09-17 20:51:26,241 - main - DEBUG - Updated room shared-room state: {'status': 'transferring', 'transfer_initiated_at': '2025-09-17T15:21:26.241041', 'initiator': 'agent-a', 'target': 'agent-b', 'summary': "**Handoff Summary**\n\n**Caller:** \n- Caller inquired about a cat in a room, but the context was unclear.\n\n**Agent:**\n- Attempted to clarify the purpose of the caller's question, but it remained unclear.\n- Offered assistance with general information about cats or room-related inquiries.\n\n**Next Steps:**\n- Escalate the call to a supervisor or a specialist for further assistance.\n- Provide the caller with a clear option to rephrase their question or seek help from a different department.\n- Document the unclear or incomplete conversation for future reference."}
+2025-09-17 20:51:26,242 - main - DEBUG - Storing summary and transcript in room: shared-room
+2025-09-17 20:51:26,242 - transcripts.manager - DEBUG - Added summary for room shared-room
+2025-09-17 20:51:26,243 - transcripts.manager - DEBUG - Added transcript for room shared-room
+2025-09-17 20:51:26,244 - main - INFO - Generating participant tokens...
+2025-09-17 20:51:26,245 - services.livekit_client - DEBUG - Generated token for agent-a in room shared-room
+2025-09-17 20:51:26,245 - services.livekit_client - DEBUG - Generated token for agent-b in room shared-room
+2025-09-17 20:51:26,246 - services.livekit_client - DEBUG - Generated token for caller in room shared-room
+2025-09-17 20:51:26,246 - main - INFO - Transfer setup complete: shared-room -> shared-room
+2025-09-17 20:51:26,250 - main - INFO - Transfer request completed in 9.09 seconds
+2025-09-17 20:51:40,243 - main - INFO - Generating join token for room: shared-room, identity: agent-b
+2025-09-17 20:51:40,245 - services.livekit_client - DEBUG - Generated token for agent-b in room shared-room
+2025-09-17 20:51:50,594 - main - INFO - Fetching summary for room: shared-room

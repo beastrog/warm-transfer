@@ -26,12 +26,51 @@ A comprehensive solution for seamless call handoff between agents and external p
 - **Real-time**: LiveKit React SDK
 - **State Management**: React Hooks
 
-## 📦 Prerequisites
+## 🛠️ Setup Instructions
 
+### Prerequisites
 - Python 3.9+
 - Node.js 18+
 - LiveKit server (cloud or self-hosted)
-- (Optional) Twilio account for phone transfers
+- Twilio account for phone transfers
+- Groq API key for LLM features
+
+### API Keys Configuration
+
+#### 1. LiveKit Setup
+1. Sign up at [LiveKit Cloud](https://cloud.livekit.io/) or deploy your own server
+2. Get your API key and secret from the LiveKit dashboard
+3. Set the following environment variables in `.env` file:
+
+```bash
+# LiveKit Configuration
+LIVEKIT_URL=wss://your-livekit-instance.livekit.cloud
+LIVEKIT_API_KEY=your_api_key
+LIVEKIT_API_SECRET=your_api_secret
+```
+
+#### 2. Twilio Setup
+1. Sign up at [Twilio](https://www.twilio.com/)
+2. Get your Account SID and Auth Token
+3. Purchase a phone number
+4. Add to your `.env` file:
+
+```bash
+# Twilio Configuration
+TWILIO_ACCOUNT_SID=your_account_sid
+TWILIO_AUTH_TOKEN=your_auth_token
+TWILIO_PHONE_NUMBER=+1234567890  # Your Twilio phone number
+```
+
+#### 3. LLM Setup (Groq)
+1. Sign up at [Groq](https://console.groq.com/)
+2. Get your API key
+3. Add to your `.env` file:
+
+```bash
+# LLM Configuration
+GROQ_API_KEY=your_groq_api_key
+```
 
 ## 🚀 Quick Start
 
@@ -49,16 +88,14 @@ cd warm-transfer
 cd backend
 
 # Create and activate virtual environment
-python -m venv .venv
-.venv\Scripts\activate  # On Windows
-source .venv/bin/activate  # On macOS/Linux
+python -m venv venv
+source venv/bin/activate  # On Windows: .\venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
 # Set up environment variables
-cp .env.example .env
-# Edit .env with your configuration
+cp .env.example .env  # Edit with your configuration
 
 # Run the backend server
 uvicorn main:app --reload
@@ -74,22 +111,23 @@ cd ../frontend
 npm install
 
 # Set up environment variables
-cp .env.local.example .env.local
-# Edit .env.local with your configuration
+cp .env.local.example .env.local  # Edit with your configuration
 
-# Start the development server
+# Run the development server
 npm run dev
 ```
 
 ### 4. Access the Application
 
-- **Caller Interface**: http://localhost:3000
-- **Agent A Dashboard**: http://localhost:3000/agent-a
-- **Agent B Dashboard**: http://localhost:3000/agent-b
+- Frontend: http://localhost:3000
+- API Docs: http://localhost:8000/docs
 
-## 🔧 Environment Configuration
+## 🔄 Warm Transfer Workflow
 
-### Backend (`.env`)
+### 1. Call Initialization
+- Customer connects to the system via web or phone
+- System creates a LiveKit room
+- Agent A joins the room
 
 ```env
 # LiveKit Configuration
@@ -338,250 +376,3 @@ The system includes seamless integration with Twilio Programmable Voice for tran
 - Restrict Twilio API keys to necessary permissions
 - Monitor your Twilio usage to prevent unexpected charges
 
-## 📸 Screenshots
-
-### Caller Interface
-![Caller Interface](/screenshots/caller-interface.png)
-- Clean, minimal interface for callers
-- Shows connection status and call controls
-- Mobile-responsive design
-
-### Agent A Dashboard
-![Agent A Dashboard](/screenshots/agent-a-dashboard.png)
-- Real-time transcript display
-- Transfer options (to Agent B or phone)
-- Call controls and participant list
-- Transfer status indicators
-
-### Agent B Dashboard
-![Agent B Dashboard](/screenshots/agent-b-dashboard.png)
-- Conversation summary display
-- Call controls
-- Participant status
-- Transfer history
-
-### Phone Transfer Flow
-![Phone Transfer](/screenshots/phone-transfer.png)
-- Phone number input with validation
-- Transfer status tracking
-- Call summary preview
-
-> Note: Replace the placeholder image paths with actual screenshots from your deployment.
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.9+
-- Node.js 18+
-- npm or yarn
-- LiveKit server (self-hosted or cloud)
-- (Optional) Twilio account for phone transfers
-
-### Backend Setup
-
-1. **Create and activate virtual environment**
-   ```bash
-   cd warm-transfer/backend
-   python -m venv .venv
-   
-   # Windows
-   .venv\Scripts\activate
-   # Unix/macOS
-   source .venv/bin/activate
-   ```
-
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your configuration
-   ```
-
-4. **Run migrations**
-   ```bash
-   # Initialize database
-   python -c "from db_operations import init_db; init_db()"
-   ```
-
-5. **Start the server**
-   ```bash
-   uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-   ```
-   The API will be available at `http://localhost:8000`
-   
-   > **Note**: For production, use a proper ASGI server like `uvicorn` with `gunicorn`
-
-### Frontend Setup
-
-1. **Install dependencies**
-   ```bash
-   cd ../frontend
-   npm install
-   ```
-
-2. **Configure environment**
-   ```bash
-   cp .env.local.example .env.local
-   # Edit .env.local with your configuration
-   ```
-
-3. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-   The frontend will be available at `http://localhost:3000`
-
-### Using Docker (Alternative)
-
-1. **Build and start containers**
-   ```bash
-   docker-compose up --build
-   ```
-   
-2. **Access the application**
-   - Frontend: `http://localhost:3000`
-   - Backend API: `http://localhost:8000`
-   - API Docs: `http://localhost:8000/docs`
-
-## 🔄 Detailed Workflow
-
-### 1. Caller Joins
-- **User Action**: Caller visits `/` and clicks "Join Call"
-- **System Action**:
-  - Backend creates `roomA`
-  - Generates WebRTC token for the caller
-  - Establishes WebRTC connection
-- **UI Feedback**: Shows "Connected" status and call controls
-
-### 2. Agent A Joins
-- **User Action**: Agent A visits `/agent-a` and clicks "Join"
-- **System Action**:
-  - Joins `roomA`
-  - Displays real-time transcript
-  - Shows participant list
-- **UI Feedback**: Shows active call with caller information
-
-### 3. Transfer Initiation
-- **User Action**: Agent A clicks "Transfer"
-- **System Action**:
-  - Creates `roomB`
-  - Generates AI summary of conversation
-  - Returns tokens for all participants
-  - Broadcasts transfer notification in `roomA`
-- **UI Feedback**: Shows transfer in progress with loading state
-
-### 4. Caller Transfer
-- **System Action**:
-  - Automatically moves caller to `roomB`
-  - Preserves audio connection
-  - Updates UI to show new room context
-- **UI Feedback**: Brief notification of transfer
-
-### 5. Agent A Moves
-- **System Action**:
-  - Moves Agent A to `roomB`
-  - Displays conversation summary
-  - Shows participant list
-- **UI Feedback**: Summary card with key points
-
-### 6. Agent B Joins
-- **User Action**: Agent B visits `/agent-b` and enters room ID
-- **System Action**:
-  - Validates room access
-  - Joins `roomB`
-  - Fetches and displays summary
-- **UI Feedback**: Shows summary and active participants
-
-### 7. Call Completion
-- **User Action**: Agent A may leave the call
-- **System Action**:
-  - Updates participant list
-  - Maintains connection between caller and Agent B
-- **UI Feedback**: Shows updated participant status
-
-### Phone Transfer Flow
-1. Agent A initiates phone transfer
-2. System validates phone number
-3. Calls target number via Twilio
-4. Plays summary to the callee
-5. Bridges the call to original caller
-6. Updates UI with call status
-
-## Error Handling
-- Failed transfers automatically revert
-- Network issues trigger reconnection
-- Failed AI fallback to simple transcript
-- Comprehensive error logging
-
-## 📝 Additional Notes
-
-### Data Persistence
-- Transcripts and call data are stored in SQLite database
-- Restarting the server preserves call history
-- Automatic backups can be configured
-
-### AI Integration
-- **Primary**: Groq API (fastest response)
-- **Fallback**: OpenAI API (if Groq unavailable)
-- **Local Fallback**: Basic keyword extraction (no API key required)
-
-### Security Considerations
-- All WebRTC traffic is encrypted
-- API endpoints require valid JWT tokens
-- Rate limiting on authentication endpoints
-- Input validation on all API endpoints
-
-### Performance
-- Optimized for low-latency audio
-- Efficient WebRTC connection management
-- Background processing for AI tasks
-
-### Monitoring
-- Structured JSON logging
-- Performance metrics endpoint
-- Health check at `/health`
-
-## 🛠 Troubleshooting
-
-### Common Issues
-
-#### No Audio
-- Check browser permissions for microphone access
-- Verify LiveKit server is accessible
-- Check console for WebRTC errors
-
-#### Transfer Fails
-- Verify room names match exactly
-- Check network connectivity
-- Review server logs for errors
-
-#### AI Summary Not Working
-- Verify API keys are set
-- Check rate limits on AI providers
-- Review network requests in browser dev tools
-
-### Getting Help
-- Check the [LiveKit documentation](https://docs.livekit.io/)
-- Review the [Twilio API docs](https://www.twilio.com/docs/voice)
-- Open an issue on GitHub
-
-## 📜 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- [LiveKit](https://livekit.io/) for the amazing WebRTC infrastructure
-- [Twilio](https://www.twilio.com/) for phone integration
-- [Groq](https://groq.com/) and [OpenAI](https://openai.com/) for AI capabilities
-- The open-source community for invaluable tools and libraries
-
----
-
-<div align="center">
-  Made with ❤️ for seamless call transfers
-</div>
