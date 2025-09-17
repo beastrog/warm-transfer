@@ -122,12 +122,7 @@ npm run dev
 - Frontend: http://localhost:3000
 - API Docs: http://localhost:8000/docs
 
-## 🔄 Warm Transfer Workflow
-
-### 1. Call Initialization
-- Customer connects to the system via web or phone
-- System creates a LiveKit room
-- Agent A joins the room
+### Backend (`.env`)
 
 ```env
 # LiveKit Configuration
@@ -163,7 +158,7 @@ NEXT_PUBLIC_LIVEKIT_URL=wss://your-livekit-instance.livekit.cloud
 NEXT_PUBLIC_ENABLE_ANALYTICS=false
 ```
 
-## 📞 Using the System
+## 📞 Using the System - Workflow Logic
 
 ### 1. Starting a Call
 1. Open the Caller Interface
@@ -278,49 +273,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   .gitignore              # Git ignore rules
   LICENSE                 # MIT License
 ```
-
-## 🔧 Environment Configuration
-
-### Backend (`.env`)
-
-#### Required
-```
-# LiveKit Configuration
-LIVEKIT_API_KEY=your_livekit_api_key
-LIVEKIT_API_SECRET=your_livekit_secret
-LIVEKIT_WS_URL=wss://your-livekit-instance.livekit.cloud
-
-# Application Settings
-DEBUG=true  # Set to false in production
-ENVIRONMENT=development  # or 'production'
-```
-
-#### Optional (for advanced features)
-```
-# Twilio Configuration (for phone transfers)
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=+1234567890  # Must be a Twilio number in E.164 format
-
-# AI/ML Configuration (for conversation summaries)
-OPENAI_API_KEY=your_openai_api_key  # Fallback if Groq is not available
-GROQ_API_KEY=your_groq_api_key      # Preferred LLM provider
-
-# Caller Configuration
-CALLER_IDENTITY=caller  # Default identity for callers
-```
-
-### Frontend (`.env.local`)
-```
-# API Configuration
-NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
-NEXT_PUBLIC_LIVEKIT_URL=wss://your-livekit-instance.livekit.cloud
-
-# Feature Flags (optional)
-NEXT_PUBLIC_ENABLE_ANALYTICS=false
-NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
-```
-
 ## 📞 Twilio Phone Transfer
 
 The system includes seamless integration with Twilio Programmable Voice for transferring calls to external phone numbers.
